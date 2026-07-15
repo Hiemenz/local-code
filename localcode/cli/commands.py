@@ -101,8 +101,28 @@ async def _plan(app: App, args: str) -> bool:
     return True
 
 
-@command("model", "Show or switch model: /model [name] or /model provider-name")
+@command("model", "Show/switch model: /model [pull <name> | <name> | provider-name]")
 async def _model(app: App, args: str) -> bool:
+    if args.startswith("pull ") or args == "pull":
+        name = args[4:].strip()
+        if not name:
+            app.console.print("[red]Usage: /model pull <name>[/]")
+            return True
+        from localcode.providers.ollama import OllamaProvider
+        if not isinstance(app.agent.provider, OllamaProvider):
+            app.console.print(
+                "[yellow]/model pull is only available for the ollama provider.[/]"
+            )
+            return True
+        with app.console.status(f"Pulling {name}…") as spinner:
+            try:
+                async for status in app.agent.provider.pull_model(name):
+                    spinner.update(f"[dim]{status}[/]")
+            except Exception as e:  # noqa: BLE001
+                app.console.print(f"[red]Pull failed:[/] {e}")
+                return True
+        app.console.print(f"[green]✓[/] {name} pulled. Use /model {name} to switch.")
+        return True
     if not args:
         app.console.print(f"Model: [bold]{app.config.provider.model}[/] "
                           f"({app.config.provider.type} @ {app.config.provider.base_url})")
@@ -143,6 +163,24 @@ async def _resume(app: App, args: str) -> bool:
         f"Resumed [cyan]{session.meta.id}[/] — {session.meta.title} "
         f"({len(app.agent.messages)} messages restored)"
     )
+    return True
+
+
+@command("instructions", "Show the active project instruction file (LOCALCODE.md / CLAUDE.md)")
+async def _instructions(app: App, args: str) -> bool:
+    from localcode.agent.prompts import load_project_instructions
+    from rich.markdown import Markdown
+
+    result = load_project_instructions(app.root)
+    if result is None:
+        app.console.print(
+            "[dim]No project instruction file found. "
+            "Create LOCALCODE.md in the project root to add repository-specific instructions.[/]"
+        )
+    else:
+        name, text = result
+        app.console.print(f"[bold]Project instructions[/] ([cyan]{name}[/]):\n")
+        app.console.print(Markdown(text))
     return True
 
 

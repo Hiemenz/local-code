@@ -114,6 +114,35 @@ class OllamaProvider(Provider):
                 retryable=True,
             ) from e
 
+    async def pull_model(self, name: str) -> AsyncIterator[str]:
+        """Pull a model from the Ollama registry. Yields human-readable status strings."""
+        try:
+            async with self._client.stream(
+                "POST", "/api/pull", json={"model": name, "stream": True}
+            ) as resp:
+                if resp.status_code >= 400:
+                    detail = (await resp.aread()).decode(errors="replace")[:200]
+                    raise ProviderError(f"Ollama pull HTTP {resp.status_code}: {detail}")
+                async for line in resp.aiter_lines():
+                    if not line.strip():
+                        continue
+                    try:
+                        chunk = json.loads(line)
+                    except json.JSONDecodeError:
+                        continue
+                    if "error" in chunk:
+                        raise ProviderError(f"Ollama: {chunk['error']}")
+                    status = chunk.get("status", "")
+                    total = chunk.get("total", 0)
+                    if total:
+                        completed = chunk.get("completed", 0)
+                        pct = round(completed / total * 100)
+                        yield f"{status} {pct}%"
+                    elif status:
+                        yield status
+        except httpx.HTTPError as e:
+            raise ProviderError(f"Ollama pull failed: {e}", retryable=True) from e
+
     async def list_models(self) -> list[str]:
         try:
             resp = await self._client.get("/api/tags")

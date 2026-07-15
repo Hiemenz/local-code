@@ -157,3 +157,31 @@ async def test_config_masks_api_key(app: App) -> None:
 async def test_compact_empty(app: App) -> None:
     await dispatch(app, "/compact")
     assert "Nothing to compact" in output(app)
+
+
+async def test_instructions_no_file(app: App) -> None:
+    await dispatch(app, "/instructions")
+    assert "No project instruction file" in output(app)
+
+
+async def test_instructions_with_localcode_md(app: App, workspace: Path) -> None:
+    (workspace / "LOCALCODE.md").write_text("# Rules\nAlways run lint before committing.")
+    await dispatch(app, "/instructions")
+    text = output(app)
+    assert "LOCALCODE.md" in text
+    assert "Always run lint" in text
+
+
+async def test_model_pull_non_ollama_provider(app: App) -> None:
+    # The fixture's FakeProvider is not OllamaProvider → helpful error
+    await dispatch(app, "/model pull llama3.2")
+    assert "ollama" in output(app).lower()
+
+
+def test_ctx_toolbar_returns_html(app: App) -> None:
+    from prompt_toolkit.formatted_text import HTML
+
+    toolbar = app._ctx_toolbar()
+    assert isinstance(toolbar, HTML)
+    assert "ctx" in str(toolbar)
+    assert "mode:" in str(toolbar)

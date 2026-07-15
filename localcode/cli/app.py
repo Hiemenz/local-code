@@ -14,6 +14,7 @@ import sys
 from pathlib import Path
 
 from prompt_toolkit import PromptSession
+from prompt_toolkit.formatted_text import HTML
 from prompt_toolkit.history import FileHistory
 from prompt_toolkit.key_binding import KeyBindings
 from rich.console import Console
@@ -128,6 +129,10 @@ class App:
         from localcode.mcp.client import load_mcp_tools
         await load_mcp_tools(self.registry, self.tool_ctx, self.root)
         self.rebuild_system_prompt()
+        instructions = load_project_instructions(self.root)
+        if instructions is not None:
+            name, _ = instructions
+            self.console.print(f"[dim]Project instructions loaded from {name}.[/]")
         if self.agent.hooks:
             await self.agent.hooks.fire("session_start")
 
@@ -166,6 +171,27 @@ class App:
         else:
             self.config.provider.model = name
             self.console.print(f"Model set to [bold]{name}[/]")
+
+    def _ctx_toolbar(self) -> HTML:
+        """Live prompt bottom-toolbar: context bar + mode + session id."""
+        ctx = self.agent.context_mgr.total_tokens(self.agent._full_messages())
+        total = self.config.provider.context_length
+        pct = ctx / total if total else 0
+        k_used = ctx // 1000
+        k_total = total // 1000
+        filled = min(round(pct * 16), 16)
+        bar = "▓" * filled + "░" * (16 - filled)
+        if pct > 0.85:
+            bar_html = f"<ansired>[{bar}]</ansired>"
+        elif pct > 0.70:
+            bar_html = f"<ansiyellow>[{bar}]</ansiyellow>"
+        else:
+            bar_html = f"[{bar}]"
+        return HTML(
+            f" ctx {k_used}k/{k_total}k {bar_html}"
+            f"  mode: {self.agent.mode}"
+            f"  {self.session.meta.id[:22]}"
+        )
 
     # -- run modes ----------------------------------------------------------------
 
@@ -229,7 +255,8 @@ class App:
             event.current_buffer.insert_text("\n")  # type: ignore[attr-defined]
 
         prompt: PromptSession[str] = PromptSession(
-            history=history, multiline=True, key_bindings=bindings
+            history=history, multiline=True, key_bindings=bindings,
+            bottom_toolbar=self._ctx_toolbar,
         )
         renderer = StreamRenderer(self.console, context_length=self.config.provider.context_length)
         from localcode.cli.commands import dispatch

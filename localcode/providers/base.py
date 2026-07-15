@@ -192,6 +192,7 @@ def parse_arguments(raw: str | dict[str, Any] | None) -> dict[str, Any]:
 
 def create_provider(cfg: ProviderConfig) -> Provider:
     """Factory: instantiate the configured provider type."""
+    from localcode.providers.anthropic import AnthropicProvider
     from localcode.providers.ollama import OllamaProvider
     from localcode.providers.openai_compat import OpenAICompatProvider
 
@@ -199,4 +200,6 @@ def create_provider(cfg: ProviderConfig) -> Provider:
         return OllamaProvider(cfg)
     if cfg.type == "openai":
         return OpenAICompatProvider(cfg)
+    if cfg.type == "anthropic":
+        return AnthropicProvider(cfg)
     raise ProviderError(f"Unknown provider type: {cfg.type}")

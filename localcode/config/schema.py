@@ -31,7 +31,7 @@ class NotificationConfig(BaseModel):
 class ProviderConfig(BaseModel):
     """Connection settings for one LLM backend."""
 
-    type: Literal["ollama", "openai"] = "ollama"
+    type: Literal["ollama", "openai", "anthropic"] = "ollama"
     base_url: str = "http://localhost:11434"
     api_key: str = ""  # unused by local servers; kept for OpenAI-compatible ones
     model: str = "qwen2.5-coder:14b"
