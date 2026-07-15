@@ -1,0 +1,31 @@
+services:
+  ollama:
+    image: ollama/ollama:latest
+    volumes:
+      - ollama-models:/root/.ollama
+    # uncomment for NVIDIA GPU:
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: all
+    #           capabilities: [gpu]
+
+  localcode:
+    build: .
+    depends_on:
+      - ollama
+    environment:
+      LOCALCODE_BASE_URL: http://ollama:11434
+      LOCALCODE_MODEL: qwen2.5-coder:14b
+    volumes:
+      # mount the repository you want to work on:
+      - ${WORKSPACE:-./}:/workspace
+      - localcode-data:/home/coder/.local/share/localcode
+    stdin_open: true
+    tty: true
+
+volumes:
+  ollama-models:
+  localcode-data:

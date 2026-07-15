@@ -1,0 +1,38 @@
+# localcode example configuration
+# Copy to ~/.config/localcode/config.toml (user-wide)
+# or <project>/.localcode.toml (per project).
+# Every key is optional; these are the defaults that matter most.
+# Full reference: docs/configuration.md
+
+[provider]
+type = "ollama"                     # "ollama" | "openai" (LM Studio/vLLM/llama.cpp/…)
+base_url = "http://localhost:11434"
+model = "qwen2.5-coder:14b"
+temperature = 0.2
+context_length = 32768
+tool_mode = "auto"                  # auto | native | json
+
+# Optional named profiles — switch with /model fast
+#[providers.fast]
+#type = "ollama"
+#model = "qwen2.5-coder:7b"
+
+[agent]
+auto_test = true                    # run detected tests after edits
+fix_iterations = 3                  # repair attempts on test failure
+
+[permissions]
+approval_mode = "ask"               # plan | ask | auto-edit | full-auto
+#allow_commands = ["git status", "ls", "npm test"]
+#allow_tools = ["run_tests"]
+
+[context]
+compact_threshold = 0.8
+repo_map_tokens = 2048
+
+[index]
+enabled = true
+#ignore = ["vendor/", "*.generated.*"]
+
+[logging]
+level = "INFO"
