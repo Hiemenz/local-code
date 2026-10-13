@@ -4,18 +4,17 @@
 
 ```bash
 git clone <repo-url> && cd localcode
-python3 -m venv .venv
-.venv/bin/pip install -e ".[dev,treesitter,api]"
+uv sync --all-extras
 ```
 
 ## Everyday commands
 
 ```bash
-.venv/bin/pytest                       # test suite (fast, no network, no model)
-.venv/bin/pytest --cov=localcode       # with coverage
-.venv/bin/mypy localcode               # strict type checking (must be clean)
-.venv/bin/ruff check localcode tests   # lint (must be clean)
-.venv/bin/ruff format localcode tests  # formatting
+uv run pytest                       # test suite (fast, no network, no model)
+uv run pytest --cov=localcode       # with coverage
+uv run mypy localcode               # strict type checking (must be clean)
+uv run ruff check localcode tests   # lint (must be clean)
+uv run ruff format localcode tests  # formatting
 python benchmarks/run_benchmarks.py    # benchmark suite
 ```
 

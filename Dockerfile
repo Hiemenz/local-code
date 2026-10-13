@@ -7,7 +7,8 @@ RUN apt-get update \
 WORKDIR /opt/localcode
 COPY pyproject.toml README.md ./
 COPY localcode ./localcode
-RUN pip install --no-cache-dir ".[treesitter,api]"
+COPY --from=ghcr.io/astral-sh/uv:0.13 /uv /usr/local/bin/uv
+RUN uv pip install --system --no-cache ".[treesitter,api]"
 
 # non-root user; workspace is mounted at /workspace
 RUN useradd -m coder

@@ -57,7 +57,7 @@ expose `register`.
 mytools = "mypackage.plugin:register"
 ```
 
-`pip install` the package and localcode discovers it automatically.
+`uv pip install` the package and localcode discovers it automatically.
 
 ## Writing good tools
 

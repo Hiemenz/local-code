@@ -13,20 +13,20 @@ jobs:
         python-version: ["3.12", "3.13"]
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: astral-sh/setup-uv@v6
         with:
           python-version: ${{ matrix.python-version }}
-          cache: pip
+          enable-cache: true
       - name: Install
-        run: pip install -e ".[dev]"
+        run: uv sync
       - name: Lint
-        run: ruff check localcode tests
+        run: uv run ruff check localcode tests
       - name: Type check
-        run: mypy localcode
+        run: uv run mypy localcode
       - name: Tests
-        run: pytest --cov=localcode --cov-report=term
+        run: uv run pytest --cov=localcode --cov-report=term
       - name: Benchmarks (overhead smoke)
-        run: python benchmarks/run_benchmarks.py
+        run: uv run python benchmarks/run_benchmarks.py
 
   docker:
     runs-on: ubuntu-latest
@@ -39,11 +39,11 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: astral-sh/setup-uv@v6
         with:
           python-version: "3.13"
       - name: Build sdist and wheel
-        run: pipx run build
+        run: uv build
       - uses: actions/upload-artifact@v4
         with:
           name: dist
