@@ -31,7 +31,7 @@ curl -fsSL https://ollama.com/install.sh | sh
 ollama pull qwen2.5-coder:14b
 
 # 2. Install localcode
-pip install localcode            # or: pipx install localcode
+uv tool install localcode
 
 # 3. Point it at a repository
 lc ~/path/to/repo
@@ -90,10 +90,10 @@ Any chat model works; these are tested defaults:
 
 ```bash
 git clone <repo> && cd localcode
-python -m venv .venv && .venv/bin/pip install -e ".[dev]"
-.venv/bin/pytest                 # test suite
-.venv/bin/mypy localcode         # type checking
-.venv/bin/ruff check localcode   # lint
+uv sync
+uv run pytest                 # test suite
+uv run mypy localcode         # type checking
+uv run ruff check localcode   # lint
 ```
 
 ## License

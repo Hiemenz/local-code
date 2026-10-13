@@ -55,7 +55,7 @@ max_tool_result_tokens = 4000  # larger tool outputs are middle-truncated
 enabled = true
 max_file_size = 1000000    # bytes; larger files are skipped
 ignore = ["node_modules/", ".venv/", "dist/", "*.min.js"]  # + .gitignore
-use_tree_sitter = true     # needs: pip install 'localcode[treesitter]'
+use_tree_sitter = true     # needs: uv tool install 'localcode[treesitter]'
 
 [permissions]
 approval_mode = "ask"      # "plan" | "ask" | "auto-edit" | "full-auto"

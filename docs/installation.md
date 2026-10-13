@@ -44,14 +44,13 @@ From PyPI (when published) or from source:
 
 ```bash
 git clone <repo-url> localcode && cd localcode
-python3 -m venv .venv
-.venv/bin/pip install .
+uv sync
 # optional extras:
-.venv/bin/pip install ".[treesitter]"   # precise symbol extraction
-.venv/bin/pip install ".[api]"          # HTTP API server
+uv sync --extra treesitter   # precise symbol extraction
+uv sync --extra api          # HTTP API server
 ```
 
-`pipx install .` also works and puts `lc` / `localcode` on your PATH.
+`uv tool install .` also works and puts `lc` / `localcode` on your PATH.
 
 ## 3. First run
 
