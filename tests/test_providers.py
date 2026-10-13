@@ -6,8 +6,7 @@ import pytest
 from localcode.config.schema import ProviderConfig
 from localcode.errors import ProviderError
 from localcode.providers.anthropic import AnthropicProvider, _wire_messages
-from localcode.providers.base import Message, ToolCall, ToolSpec, create_provider
-from localcode.providers.base import ImageContent
+from localcode.providers.base import ImageContent, Message, ToolCall, ToolSpec, create_provider
 from localcode.providers.ollama import OllamaProvider
 from localcode.providers.openai_compat import OpenAICompatProvider
 
@@ -363,7 +362,7 @@ async def test_ollama_pull_model_yields_status() -> None:
         assert request.url.path == "/api/pull"
         body = json.loads(request.content)
         assert body["model"] == "llama3.2"
-        content = "".join(json.dumps(l) + "\n" for l in lines)
+        content = "".join(json.dumps(line) + "\n" for line in lines)
         return httpx.Response(200, content=content.encode())
 
     statuses = [s async for s in ollama_provider(handler).pull_model("llama3.2")]

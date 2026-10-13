@@ -168,8 +168,9 @@ async def _resume(app: App, args: str) -> bool:
 
 @command("instructions", "Show the active project instruction file (LOCALCODE.md / CLAUDE.md)")
 async def _instructions(app: App, args: str) -> bool:
-    from localcode.agent.prompts import load_project_instructions
     from rich.markdown import Markdown
+
+    from localcode.agent.prompts import load_project_instructions
 
     result = load_project_instructions(app.root)
     if result is None:
